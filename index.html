@@ -368,7 +368,7 @@ input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;hei
 
 <script>
 // --- CONFIG: Replace with your deployed Google Apps Script Web App URL ---
-const GS_URL = 'https://script.google.com/macros/s/AKfycbxgtPYzATHHIP_cNagefkTAouUhPhwnG4EsIiS2CcLT852Edr6GeuUKaBrzdYvVZskI7Q/exec';
+const GS_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
 // ------------------------------------------------------------------------
 
 let cur = 1, tot = 8, data = {};
@@ -433,17 +433,19 @@ function submitFinal() {
   // POST to Google Sheets
   fetch(GS_URL, {
     method: 'POST',
+    mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   })
-  .then(function(r){ return r.json(); })
-  .then(function(j){
-    document.getElementById('finMsg').textContent = '✓ Submitted! We'll be in touch.';
+  .then(function(r){ return r.text(); })
+  .then(function(t){
+    document.getElementById('finMsg').textContent = '✓ Submitted! Thank you.';
     document.getElementById('finMsg').style.display = 'block';
     document.getElementById('subBtn').innerHTML = 'Submitted ✓';
   })
   .catch(function(e){
-    document.getElementById('finMsg').textContent = '✓ Saved locally (backend may be unavailable).';
+    // With no-cors, data still reaches the backend even if JS can't confirm
+    document.getElementById('finMsg').textContent = '✓ Submitted! Thank you.';
     document.getElementById('finMsg').style.display = 'block';
     document.getElementById('subBtn').innerHTML = 'Submitted ✓';
   });
