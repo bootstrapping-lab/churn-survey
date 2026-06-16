@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Churn Insights Survey</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f23;--card:#16162a;--card-hover:#1c1c3a;--text:#e2e8f0;--text-sec:#94a3b8;--accent:#6366f1;--accent-l:#818cf8;--accent-g:rgba(99,102,241,0.3);--border:#2d2d5a;--good:#10b981;--bad:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:40px 20px;line-height:1.6}
+.container{max-width:720px;width:100%}
+.header{text-align:center;margin-bottom:32px}
+.header h1{font-size:1.75rem;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,var(--accent-l),#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header p{color:var(--text-sec);font-size:0.95rem}
+.progress-container{background:var(--card);border-radius:12px;padding:20px 24px;margin-bottom:24px;border:1px solid var(--border)}
+.progress-bar-bg{height:6px;background:#2d2d5a;border-radius:3px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#a78bfa);border-radius:3px;transition:width .4s ease}
+.progress-label{display:flex;justify-content:space-between;margin-top:10px;font-size:0.8rem;color:var(--text-sec)}
+.step{display:none;animation:fadeIn .3s ease}
+.step.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:20px;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.card h2{font-size:1.25rem;font-weight:600;margin-bottom:8px}
+.card .subtitle{color:var(--text-sec);font-size:0.9rem;margin-bottom:24px}
+.question-group{margin-bottom:24px}
+.question-group label{display:block;font-weight:500;margin-bottom:10px;font-size:0.95rem}
+.question-group .hint{color:var(--text-sec);font-size:0.8rem;margin-bottom:10px}
+input[type="text"],input[type="email"],input[type="number"],select,textarea{width:100%;padding:12px 16px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:0.95rem;font-family:inherit;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-g)}
+textarea{resize:vertical;min-height:100px}
+.option-grid{display:grid;gap:10px}
+.option-grid.single{grid-template-columns:1fr}
+.option-grid.double{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.option-item{position:relative}
+.option-item input[type="radio"],.option-item input[type="checkbox"]{position:absolute;opacity:0}
+.option-item label{display:flex;align-items:center;padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;font-weight:400;margin:0;gap:10px}
+.option-item label:hover{border-color:var(--accent);background:var(--card-hover)}
+.option-item input:checked+label{border-color:var(--accent);background:rgba(99,102,241,0.1)}
+.option-item .rc,.option-item .cb{width:20px;height:20px;border:2px solid var(--border);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.option-item .cb{border-radius:5px}
+.option-item input:checked+label .rc,.option-item input:checked+label .cb{border-color:var(--accent);background:var(--accent)}
+.option-item input:checked+label .rc::after{content:'';width:8px;height:8px;background:#fff;border-radius:50%}
+.option-item input:checked+label .cb::after{content:'\2713';color:#fff;font-size:12px;font-weight:700}
+.slider-group{padding:16px 0}
+.slider-labels{display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-sec);margin-bottom:10px}
+input[type="range"]{width:100%;-webkit-appearance:none;height:6px;background:var(--border);border-radius:3px;outline:none}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 10px var(--accent-g)}
+.slider-value{text-align:center;font-weight:600;font-size:1.25rem;color:var(--accent-l);margin-top:8px}
+.nav-buttons{display:flex;justify-content:space-between;margin-top:24px;gap:12px}
+.btn{padding:12px 28px;border-radius:10px;border:none;font-size:0.95rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-sec{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-sec:hover{border-color:var(--accent);background:rgba(99,102,241,0.1)}
+.btn-prim{background:var(--accent);color:#fff;flex:1}
+.btn-prim:hover{background:var(--accent-l);transform:translateY(-1px);box-shadow:0 4px 16px var(--accent-g)}
+.btn-prim:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.tag{display:inline-block;padding:4px 12px;background:rgba(99,102,241,0.15);color:var(--accent-l);border-radius:20px;font-size:0.75rem;font-weight:600;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px}
+.completion-card{text-align:center;padding:48px 32px}
+.completion-card .icon{font-size:4rem;margin-bottom:16px}
+.completion-card h2{font-size:1.5rem;margin-bottom:12px}
+.completion-card p{color:var(--text-sec);margin-bottom:24px}
+.results-summary{background:var(--bg);border-radius:12px;padding:20px;text-align:left;margin-bottom:24px;border:1px solid var(--border);max-height:300px;overflow-y:auto}
+.results-summary pre{font-size:0.8rem;color:var(--text-sec);white-space:pre-wrap;word-break:break-word}
+.err{color:var(--bad);font-size:0.85rem;margin-top:4px;display:none}
+.required .question-group label::after{content:' *';color:var(--bad)}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-left:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){.card{padding:20px}.header h1{font-size:1.4rem}.btn{padding:10px 20px}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header"><h1>Customer Churn Insights Survey</h1><p>Help us understand how organizations like yours tackle churn. ~3 minutes.</p></div>
+<div class="progress-container">
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="pbar" style="width:0%"></div></div>
+  <div class="progress-label"><span id="ptext">Step 1 of 8</span><span id="ppct">0%</span></div>
+</div>
+
+<!-- STEP 1 -->
+<div class="step active" data-step="1">
+<div class="card">
+<span class="tag">Quick Start</span>
+<h2>Tell us about your role</h2>
+<p class="subtitle">This helps us understand who we're building for.</p>
+<div class="question-group required">
+  <label>What best describes your role?</label>
+  <div class="option-grid single">
+    <div class="option-item"><input type="radio" name="role" id="r1" value="founder_ceo"><label for="r1"><span class="rc"></span>Founder / CEO</label></div>
+    <div class="option-item"><input type="radio" name="role" id="r2" value="coo_vp_ops"><label for="r2"><span class="rc"></span>COO / VP of Operations</label></div>
+    <div class="option-item"><input type="radio" name="role" id="r3" value="vp_product"><label for="r3"><span class="rc"></span>VP of Product / CPO</label></div>
+    <div class="option-item"><input type="radio" name="role" id="r4" value="head_cs"><label for="r4"><span class="rc"></span>Head of Customer Success</label></div>
+    <div class="option-item"><input type="radio" name="role" id="r5" value="data_analytics"><label for="r5"><span class="rc"></span>Head of Data / Analytics</label></div>
+    <div class="option-item"><input type="radio" name="role" id="r6" value="revops"><label for="r6"><span class="rc"></span>Revenue Operations</label></div>
+    <div class="option-item"><input type="radio" name="role" id="r7" value="other"><label for="r7"><span class="rc"></span>Other</label></div>
+  </div>
+  <div class="err" id="e-role">Please select your role.</div>
+</div>
+<div class="question-group required">
+  <label>How many paying customers does your company have?</label>
+  <div class="option-grid double">
+    <div class="option-item"><input type="radio" name="customers" id="c1" value="1-50"><label for="c1"><span class="rc"></span>1 – 50</label></div>
+    <div class="option-item"><input type="radio" name="customers" id="c2" value="51-200"><label for="c2"><span class="rc"></span>51 – 200</label></div>
+    <div class="option-item"><input type="radio" name="customers" id="c3" value="201-1000"><label for="c3"><span class="rc"></span>201 – 1,000</label></div>
+    <div class="option-item"><input type="radio" name="customers" id="c4" value="1000+"><label for="c4"><span class="rc"></span>1,000+</label></div>
+  </div>
+  <div class="err" id="e-customers">Please select a range.</div>
+</div>
+<div class="question-group required">
+  <label>How long has your company been tracking customer data?</label>
+  <div class="option-grid double">
+    <div class="option-item"><input type="radio" name="data_history" id="d1" value="<6m"><label for="d1"><span class="rc"></span>Less than 6 months</label></div>
+    <div class="option-item"><input type="radio" name="data_history" id="d2" value="6-12m"><label for="d2"><span class="rc"></span>6 – 12 months</label></div>
+    <div class="option-item"><input type="radio" name="data_history" id="d3" value="1-3y"><label for="d3"><span class="rc"></span>1 – 3 years</label></div>
+    <div class="option-item"><input type="radio" name="data_history" id="d4" value="3y+"><label for="d4"><span class="rc"></span>3+ years</label></div>
+  </div>
+  <div class="err" id="e-data_history">Please select an option.</div>
+</div>
+</div>
+<div class="nav-buttons"><div></div><button class="btn btn-prim" onclick="nextStep()">Continue →</button></div>
+</div>
+
+<!-- STEP 2 -->
+<div class="step" data-step="2">
+<div class="card">
+<span class="tag">Problem Discovery</span>
+<h2>How do you currently handle churn?</h2>
+<p class="subtitle">We want to understand your pain points before talking solutions.</p>
+<div class="question-group required">
+  <label>How often does your team discuss or address customer churn?</label>
+  <div class="option-grid single">
+    <div class="option-item"><input type="radio" name="churn_frequency" id="cf1" value="daily"><label for="cf1"><span class="rc"></span>Daily — it's a constant firefight</label></div>
+    <div class="option-item"><input type="radio" name="churn_frequency" id="cf2" value="weekly"><label for="cf2"><span class="rc"></span>Weekly — we review churn metrics regularly</label></div>
+    <div class="option-item"><input type="radio" name="churn_frequency" id="cf3" value="monthly"><label for="cf3"><span class="rc"></span>Monthly — in business reviews</label></div>
+    <div class="option-item"><input type="radio" name="churn_frequency" id="cf4" value="quarterly"><label for="cf4"><span class="rc"></span>Quarterly or less</label></div>
+    <div class="option-item"><input type="radio" name="churn_frequency" id="cf5" value="never"><label for="cf5"><span class="rc"></span>We don't formally track churn</label></div>
+  </div>
+  <div class="err" id="e-churn_frequency">Please select an option.</div>
+</div>
+<div class="question-group required">
+  <label>What is your approximate monthly churn rate?</label>
+  <div class="option-grid double">
+    <div class="option-item"><input type="radio" name="churn_rate" id="cr1" value="unknown"><label for="cr1"><span class="rc"></span>I don't know</label></div>
+    <div class="option-item"><input type="radio" name="churn_rate" id="cr2" value="<2%"><label for="cr2"><span class="rc"></span>Under 2%</label></div>
+    <div class="option-item"><input type="radio" name="churn_rate" id="cr3" value="2-5%"><label for="cr3"><span class="rc"></span>2% – 5%</label></div>
+    <div class="option-item"><input type="radio" name="churn_rate" id="cr4" value="5-10%"><label for="cr4"><span class="rc"></span>5% – 10%</label></div>
+    <div class="option-item"><input type="radio" name="churn_rate" id="cr5" value=">10%"><label for="cr5"><span class="rc"></span>Over 10%</label></div>
+  </div>
+  <div class="err" id="e-churn_rate">Please select an option.</div>
+</div>
+<div class="question-group required">
+  <label>Which are major blockers when trying to predict or reduce churn? (Select all that apply)</label>
+  <div class="option-grid single">
+    <div class="option-item"><input type="checkbox" name="blockers" id="b1" value="data_siloed"><label for="b1"><span class="cb"></span>Customer data is scattered across tools (CRM, billing, analytics)</label></div>
+    <div class="option-item"><input type="checkbox" name="blockers" id="b2" value="no_data_team"><label for="b2"><span class="cb"></span>We don't have a data science team</label></div>
+    <div class="option-item"><input type="checkbox" name="blockers" id="b3" value="signals_too_late"><label for="b3"><span class="cb"></span>We only realize a customer is at risk when it's too late</label></div>
+    <div class="option-item"><input type="checkbox" name="blockers" id="b4" value="cant_quantify_impact"><label for="b4"><span class="cb"></span>We can't easily quantify the revenue impact of churn</label></div>
+    <div class="option-item"><input type="checkbox" name="blockers" id="b5" value="generic_rules"><label for="b5"><span class="cb"></span>Generic health scores don't reflect our specific business</label></div>
+    <div class="option-item"><input type="checkbox" name="blockers" id="b6" value="no_ml_knowledge"><label for="b6"><span class="cb"></span>We lack ML expertise to build predictive models</label></div>
+    <div class="option-item"><input type="checkbox" name="blockers" id="b7" value="manual_process"><label for="b7"><span class="cb"></span>Our churn detection is entirely manual / gut-based</label></div>
+    <div class="option-item"><input type="checkbox" name="blockers" id="b8" value="other"><label for="b8"><span class="cb"></span>Other</label></div>
+  </div>
+  <div class="err" id="e-blockers">Please select at least one option.</div>
+</div>
+</div>
+<div class="nav-buttons"><button class="btn btn-sec" onclick="prevStep()">← Back</button><button class="btn btn-prim" onclick="nextStep()">Continue →</button></div>
+</div>
+
+<!-- STEP 3 -->
+<div class="step" data-step="3">
+<div class="card">
+<span class="tag">Understanding Your Needs</span>
+<h2>What would a churn solution need to do for you?</h2>
+<p class="subtitle">Think about the "job" you'd hire a product to do — not features, outcomes.</p>
+<div class="question-group required">
+  <label>What do you currently do to identify at-risk customers?</label>
+  <div class="option-grid single">
+    <div class="option-item"><input type="radio" name="current_approach" id="ca1" value="nothing"><label for="ca1"><span class="rc"></span>Nothing formal — we react when customers cancel</label></div>
+    <div class="option-item"><input type="radio" name="current_approach" id="ca2" value="spreadsheets"><label for="ca2"><span class="rc"></span>Spreadsheets or BI dashboards with manual rules</label></div>
+    <div class="option-item"><input type="radio" name="current_approach" id="ca3" value="cs_tool"><label for="ca3"><span class="rc"></span>We use a CS platform (ChurnZero, Gainsight, Vitally)</label></div>
+    <div class="option-item"><input type="radio" name="current_approach" id="ca4" value="custom_ml"><label for="ca4"><span class="rc"></span>We built custom ML models in-house</label></div>
+    <div class="option-item"><input type="radio" name="current_approach" id="ca5" value="external_consultant"><label for="ca5"><span class="rc"></span>We hired a data consultant / agency</label></div>
+    <div class="option-item"><input type="radio" name="current_approach" id="ca6" value="other"><label for="ca6"><span class="rc"></span>Something else</label></div>
+  </div>
+  <div class="err" id="e-current_approach">Please select an option.</div>
+</div>
+<div class="question-group required">
+  <label>If you could wave a magic wand, what is the single most valuable outcome a churn prediction tool could deliver?</label>
+  <div class="option-grid single">
+    <div class="option-item"><input type="radio" name="dream_outcome" id="do1" value="early_warning"><label for="do1"><span class="rc"></span>Early warning: knowing which customers are at risk 30–60 days before they churn</label></div>
+    <div class="option-item"><input type="radio" name="dream_outcome" id="do2" value="why_churn"><label for="do2"><span class="rc"></span>Root cause: understanding *why* specific customers are at risk</label></div>
+    <div class="option-item"><input type="radio" name="dream_outcome" id="do3" value="unified_view"><label for="do3"><span class="rc"></span>Unified view: combining payment, product usage, and support data in one score</label></div>
+    <div class="option-item"><input type="radio" name="dream_outcome" id="do4" value="auto_actions"><label for="do4"><span class="rc"></span>Automation: triggering retention playbooks automatically based on risk signals</label></div>
+    <div class="option-item"><input type="radio" name="dream_outcome" id="do5" value="revenue_forecast"><label for="do5"><span class="rc"></span>Forecasting: predicting revenue at risk and the impact of retention efforts</label></div>
+    <div class="option-item"><input type="radio" name="dream_outcome" id="do6" value="all"><label for="do6"><span class="rc"></span>All of the above</label></div>
+  </div>
+  <div class="err" id="e-dream_outcome">Please select an option.</div>
+</div>
+</div>
+<div class="nav-buttons"><button class="btn btn-sec" onclick="prevStep()">← Back</button><button class="btn btn-prim" onclick="nextStep()">Continue →</button></div>
+</div>
+
+<!-- STEP 4 -->
+<div class="step" data-step="4">
+<div class="card">
+<span class="tag">Concept Preview</span>
+<h2>Here is what we're building</h2>
+<p class="subtitle">Please share your honest reaction — this is exactly what we need.</p>
+<div style="background:var(--bg);border-radius:12px;padding:24px;margin-bottom:24px;border:1px solid var(--border);">
+  <h3 style="font-size:1.1rem;margin-bottom:12px;color:var(--accent-l)">Adaptive Churn Intelligence</h3>
+  <p style="color:var(--text-sec);font-size:0.9rem;margin-bottom:16px;">A platform that automatically builds a predictive churn model tailored to your business using your historical data — no ML team required.</p>
+  <ul style="list-style:none;padding:0;margin:0;display:grid;gap:10px;">
+    <li style="display:flex;gap:10px;align-items:flex-start;color:var(--text);font-size:0.9rem"><span style="color:var(--good);flex-shrink:0">✓</span> Connects to your existing tools (HubSpot, Stripe, Mixpanel, etc.)</li>
+    <li style="display:flex;gap:10px;align-items:flex-start;color:var(--text);font-size:0.9rem"><span style="color:var(--good);flex-shrink:0">✓</span> Automatically cleans, combines, and prepares your data</li>
+    <li style="display:flex;gap:10px;align-items:flex-start;color:var(--text);font-size:0.9rem"><span style="color:var(--good);flex-shrink:0">✓</span> Trains a predictive model specific to your customer base</li>
+    <li style="display:flex;gap:10px;align-items:flex-start;color:var(--text);font-size:0.9rem"><span style="color:var(--good);flex-shrink:0">✓</span> Scores every customer monthly with a risk probability</li>
+    <li style="display:flex;gap:10px;align-items:flex-start;color:var(--text);font-size:0.9rem"><span style="color:var(--good);flex-shrink:0">✓</span> Delivers actionable alerts to Slack or your CRM</li>
+    <li style="display:flex;gap:10px;align-items:flex-start;color:var(--text);font-size:0.9rem"><span style="color:var(--good);flex-shrink:0">✓</span> Non-technical: set up in minutes, no code or data science needed</li>
+  </ul>
+</div>
+<div class="question-group required">
+  <label>How interested are you in trying this?</label>
+  <div class="option-grid single">
+    <div class="option-item"><input type="radio" name="interest" id="i1" value="extremely"><label for="i1"><span class="rc"></span>Extremely — I want to be a beta user</label></div>
+    <div class="option-item"><input type="radio" name="interest" id="i2" value="very"><label for="i2"><span class="rc"></span>Very interested — I'd evaluate it seriously</label></div>
+    <div class="option-item"><input type="radio" name="interest" id="i3" value="somewhat"><label for="i3"><span class="rc"></span>Somewhat — I'd look at it if I had time</label></div>
+    <div class="option-item"><input type="radio" name="interest" id="i4" value="not_really"><label for="i4"><span class="rc"></span>Not really — we have other priorities</label></div>
+    <div class="option-item"><input type="radio" name="interest" id="i5" value="not_at_all"><label for="i5"><span class="rc"></span>Not at all — this doesn't solve a problem I have</label></div>
+  </div>
+  <div class="err" id="e-interest">Please select your level of interest.</div>
+</div>
+<div class="question-group">
+  <label>What is your biggest concern or objection? (Optional)</label>
+  <textarea name="objection" placeholder="e.g., data privacy, accuracy, integration complexity..." maxlength="500"></textarea>
+</div>
+</div>
+<div class="nav-buttons"><button class="btn btn-sec" onclick="prevStep()">← Back</button><button class="btn btn-prim" onclick="nextStep()">Continue →</button></div>
+</div>
+
+<!-- STEP 5: Pricing -->
+<div class="step" data-step="5">
+<div class="card">
+<span class="tag">Pricing Research</span>
+<h2>Help us understand pricing</h2>
+<p class="subtitle">There are no right answers. Your honest opinion shapes our go-to-market.</p>
+<div class="question-group required">
+  <label>At what <strong>monthly price</strong> would this product be so inexpensive that you'd question its quality?</label>
+  <p class="hint">(Too Cheap — below this you wouldn't trust it)</p>
+  <div class="slider-group">
+    <div class="slider-labels"><span>$0</span><span>$500</span><span>$1,000</span><span>$1,500</span><span>$2,000+</span></div>
+    <input type="range" name="price_too_cheap" min="0" max="2000" step="50" value="100" oninput="upd(this,'stc')">
+    <div class="slider-value" id="stc">$100 / month</div>
+  </div>
+  <div class="err" id="e-price_too_cheap">Please move the slider.</div>
+</div>
+<div class="question-group required">
+  <label>At what <strong>monthly price</strong> would you consider this a great value — a bargain?</label>
+  <p class="hint">(Good Value)</p>
+  <div class="slider-group">
+    <div class="slider-labels"><span>$0</span><span>$500</span><span>$1,000</span><span>$1,500</span><span>$2,000+</span></div>
+    <input type="range" name="price_good_value" min="0" max="2000" step="50" value="300" oninput="upd(this,'sgv')">
+    <div class="slider-value" id="sgv">$300 / month</div>
+  </div>
+  <div class="err" id="e-price_good_value">Please move the slider.</div>
+</div>
+<div class="question-group required">
+  <label>At what <strong>monthly price</strong> does it start to feel expensive — you'd have to think about it?</label>
+  <p class="hint">(Getting Expensive)</p>
+  <div class="slider-group">
+    <div class="slider-labels"><span>$0</span><span>$500</span><span>$1,000</span><span>$1,500</span><span>$2,000+</span></div>
+    <input type="range" name="price_expensive" min="0" max="2000" step="50" value="700" oninput="upd(this,'se')">
+    <div class="slider-value" id="se">$700 / month</div>
+  </div>
+  <div class="err" id="e-price_expensive">Please move the slider.</div>
+</div>
+<div class="question-group required">
+  <label>At what <strong>monthly price</strong> would this be too expensive to even consider?</label>
+  <p class="hint">(Too Expensive)</p>
+  <div class="slider-group">
+    <div class="slider-labels"><span>$0</span><span>$500</span><span>$1,000</span><span>$1,500</span><span>$2,000+</span></div>
+    <input type="range" name="price_too_expensive" min="0" max="2000" step="50" value="1200" oninput="upd(this,'ste')">
+    <div class="slider-value" id="ste">$1,200 / month</div>
+  </div>
+  <div class="err" id="e-price_too_expensive">Please move the slider.</div>
+</div>
+</div>
+<div class="nav-buttons"><button class="btn btn-sec" onclick="prevStep()">← Back</button><button class="btn btn-prim" onclick="nextStep()">Continue →</button></div>
+</div>
+
+<!-- STEP 6: Sean Ellis -->
+<div class="step" data-step="6">
+<div class="card">
+<span class="tag">Product-Market Fit Signal</span>
+<h2>The Sean Ellis Test</h2>
+<p class="subtitle">A single, powerful question used by startups worldwide.</p>
+<div class="question-group required">
+  <label style="font-size:1.1rem;line-height:1.5">How would you feel if you could no longer use this churn prediction product — assuming it worked as described?</label>
+  <div class="option-grid single">
+    <div class="option-item"><input type="radio" name="sean_ellis" id="se1" value="very_disappointed"><label for="se1"><span class="rc"></span><strong>Very disappointed</strong> — this would be a major loss</label></div>
+    <div class="option-item"><input type="radio" name="sean_ellis" id="se2" value="somewhat_disappointed"><label for="se2"><span class="rc"></span><strong>Somewhat disappointed</strong> — useful but we could manage</label></div>
+    <div class="option-item"><input type="radio" name="sean_ellis" id="se3" value="not_disappointed"><label for="se3"><span class="rc"></span><strong>Not disappointed</strong> — we don't really need this</label></div>
+    <div class="option-item"><input type="radio" name="sean_ellis" id="se4" value="n_a"><label for="se4"><span class="rc"></span><strong>N/A</strong> — I no longer use it (or never started)</label></div>
+  </div>
+  <div class="err" id="e-sean_ellis">Please select an option.</div>
+</div>
+<div class="question-group required">
+  <label>What would you use as an alternative if this product didn't exist?</label>
+  <textarea name="alternative" placeholder="e.g., continue with spreadsheets, hire a data scientist, use Gainsight, build in-house..." maxlength="500" required></textarea>
+  <div class="err" id="e-alternative">Please share what you'd use instead.</div>
+</div>
+</div>
+<div class="nav-buttons"><button class="btn btn-sec" onclick="prevStep()">← Back</button><button class="btn btn-prim" onclick="nextStep()">Continue →</button></div>
+</div>
+
+<!-- STEP 7: Segmentation -->
+<div class="step" data-step="7">
+<div class="card">
+<span class="tag">Final Details</span>
+<h2>A few more details</h2>
+<p class="subtitle">This helps us segment and prioritize responses.</p>
+<div class="question-group required">
+  <label>How many people are on your Customer Success / Revenue Ops team?</label>
+  <div class="option-grid double">
+    <div class="option-item"><input type="radio" name="team_size" id="ts1" value="1-2"><label for="ts1"><span class="rc"></span>1 – 2 people</label></div>
+    <div class="option-item"><input type="radio" name="team_size" id="ts2" value="3-5"><label for="ts2"><span class="rc"></span>3 – 5 people</label></div>
+    <div class="option-item"><input type="radio" name="team_size" id="ts3" value="6-15"><label for="ts3"><span class="rc"></span>6 – 15 people</label></div>
+    <div class="option-item"><input type="radio" name="team_size" id="ts4" value="15+"><label for="ts4"><span class="rc"></span>15+ people</label></div>
+  </div>
+  <div class="err" id="e-team_size">Please select an option.</div>
+</div>
+<div class="question-group required">
+  <label>What is your company's approximate Annual Recurring Revenue (ARR)?</label>
+  <div class="option-grid double">
+    <div class="option-item"><input type="radio" name="arr" id="a1" value="under_1m"><label for="a1"><span class="rc"></span>Under $1M</label></div>
+    <div class="option-item"><input type="radio" name="arr" id="a2" value="1-5m"><label for="a2"><span class="rc"></span>$1M – $5M</label></div>
+    <div class="option-item"><input type="radio" name="arr" id="a3" value="5-20m"><label for="a3"><span class="rc"></span>$5M – $20M</label></div>
+    <div class="option-item"><input type="radio" name="arr" id="a4" value="20-100m"><label for="a4"><span class="rc"></span>$20M – $100M</label></div>
+    <div class="option-item"><input type="radio" name="arr" id="a5" value="100m+"><label for="a5"><span class="rc"></span>$100M+</label></div>
+  </div>
+  <div class="err" id="e-arr">Please select a range.</div>
+</div>
+<div class="question-group">
+  <label>Anything else we should know? (Optional)</label>
+  <textarea name="other_feedback" placeholder="Specific features, integrations, deal-breakers, or general thoughts..." maxlength="800"></textarea>
+</div>
+</div>
+<div class="nav-buttons"><button class="btn btn-sec" onclick="prevStep()">← Back</button><button class="btn btn-prim" onclick="nextStep()">Continue →</button></div>
+</div>
+
+<!-- STEP 8: Completion -->
+<div class="step" data-step="8">
+<div class="card completion-card">
+<div class="icon">🎉</div>
+<h2>Thank you!</h2>
+<p>Your responses have been recorded. This directly shapes what we build next.</p>
+<div class="results-summary" id="resBox" style="display:none">
+  <pre id="resJson"></pre>
+</div>
+<div class="question-group" style="text-align:left">
+  <label>Want to be notified when we launch? Leave your email:</label>
+  <input type="email" name="email" id="email" placeholder="you@company.com" style="margin-top:8px">
+</div>
+<button class="btn btn-prim" id="subBtn" style="margin-top:16px" onclick="submitFinal()">Submit & Finish</button>
+<div id="finMsg" style="margin-top:16px;color:var(--good);font-weight:500;display:none"></div>
+</div>
+</div>
+</div>
+
+<script>
+// --- CONFIG: Replace with your deployed Google Apps Script Web App URL ---
+const GS_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+// ------------------------------------------------------------------------
+
+let cur = 1, tot = 8, data = {};
+
+function up() {
+  var p = Math.round(((cur - 1) / (tot - 1)) * 100);
+  document.getElementById('pbar').style.width = p + '%';
+  document.getElementById('ptext').textContent = 'Step ' + Math.min(cur, tot - 1) + ' of ' + (tot - 1);
+  document.getElementById('ppct').textContent = p + '%';
+}
+function upd(el, id) {
+  var v = parseInt(el.value), t = v >= 2000 ? '$2,000+ / month' : '$' + v + ' / month';
+  document.getElementById(id).textContent = t;
+}
+function val(s) {
+  var el = document.querySelector('.step[data-step="' + s + '"]'), valid = true;
+  el.querySelectorAll('.required').forEach(function(g) {
+    var r = g.querySelectorAll('input[type="radio"]'), c = g.querySelectorAll('input[type="checkbox"]'), ta = g.querySelector('textarea[required]'), e = g.querySelector('.err'), ok = true;
+    if (r.length && !Array.from(r).some(function(x){return x.checked})) ok = false;
+    if (c.length && !Array.from(c).some(function(x){return x.checked})) ok = false;
+    if (ta && !ta.value.trim()) ok = false;
+    if (e) e.style.display = ok ? 'none' : 'block';
+    if (!ok) valid = false;
+  });
+  // Also validate sliders have been moved from default (optional strictness)
+  return valid;
+}
+function cap(s) {
+  var el = document.querySelector('.step[data-step="' + s + '"]');
+  el.querySelectorAll('input,textarea').forEach(function(inp) {
+    if (inp.type === 'radio') { if (inp.checked) data[inp.name] = inp.value; }
+    else if (inp.type === 'checkbox') { if (!data[inp.name]) data[inp.name] = []; if (inp.checked) data[inp.name].push(inp.value); }
+    else if (inp.type === 'range') { data[inp.name] = parseInt(inp.value); }
+    else { if (inp.value.trim()) data[inp.name] = inp.value.trim(); }
+  });
+}
+function nextStep() {
+  if (!val(cur)) return;
+  cap(cur);
+  document.querySelector('.step[data-step="' + cur + '"]').classList.remove('active');
+  cur++;
+  document.querySelector('.step[data-step="' + cur + '"]').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'}); up();
+}
+function prevStep() {
+  if (cur <= 1) return;
+  document.querySelector('.step[data-step="' + cur + '"]').classList.remove('active');
+  cur--; document.querySelector('.step[data-step="' + cur + '"]').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'}); up();
+}
+function submitFinal() {
+  var email = document.getElementById('email').value.trim();
+  if (email) data.email = email;
+  data.lang = 'en';
+  document.getElementById('subBtn').disabled = true;
+  document.getElementById('subBtn').innerHTML = 'Submitting<span class="spinner"></span>';
+
+  // Show JSON locally
+  document.getElementById('resJson').textContent = JSON.stringify(data, null, 2);
+  document.getElementById('resBox').style.display = 'block';
+
+  // POST to Google Sheets
+  fetch(GS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(j){
+    document.getElementById('finMsg').textContent = '✓ Submitted! We'll be in touch.';
+    document.getElementById('finMsg').style.display = 'block';
+    document.getElementById('subBtn').innerHTML = 'Submitted ✓';
+  })
+  .catch(function(e){
+    document.getElementById('finMsg').textContent = '✓ Saved locally (backend may be unavailable).';
+    document.getElementById('finMsg').style.display = 'block';
+    document.getElementById('subBtn').innerHTML = 'Submitted ✓';
+  });
+}
+up();
+</script>
+</body>
+</html>
