@@ -17,7 +17,7 @@ function doPost(e) {
     var row = [
       new Date(), safe(data.role), safe(data.customers), safe(data.data_history),
       safe(data.churn_frequency), safe(data.churn_rate), safeArr(data.blockers),
-      safe(data.current_approach), safe(data.dream_outcome), safe(data.interest),
+      safe(data.current_approach), safeArr(data.tools_stack), safe(data.dream_outcome), safe(data.interest),
       safe(data.objection), safeNum(data.price_too_cheap), safeNum(data.price_good_value),
       safeNum(data.price_expensive), safeNum(data.price_too_expensive),
       safe(data.sean_ellis), safe(data.alternative), safe(data.team_size),
@@ -43,7 +43,7 @@ function ok(obj) {
 }
 function ensureHeaders(s) {
   var h = ['Timestamp','Role','Customers','DataHistory','ChurnFrequency','ChurnRate',
-    'Blockers','CurrentApproach','DreamOutcome','Interest','Objection',
+    'Blockers','CurrentApproach','ToolsStack','DreamOutcome','Interest','Objection',
     'PriceTooCheap','PriceGoodValue','PriceExpensive','PriceTooExpensive',
     'SeanEllis','Alternative','TeamSize','ARR','OtherFeedback','Email','Lang'];
   if (s.getRange(1,1,1,1).getValue() === '') {

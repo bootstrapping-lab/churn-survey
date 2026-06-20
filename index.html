@@ -184,6 +184,34 @@ input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;hei
   </div>
   <div class="err" id="e-current_approach">Please select an option.</div>
 </div>
+<div class="question-group">
+  <label>Which tools does your company currently use?</label>
+  <p class="hint" style="margin-bottom:12px;">Select all that apply — this helps us understand integration possibilities.</p>
+  <div style="font-size:0.85rem;font-weight:600;color:var(--text-sec);margin:10px 0 6px;">Billing &amp; Payments</div>
+  <div class="option-grid" style="margin-bottom:4px;">
+    <div class="option-item"><input type="checkbox" name="tools_stack" id="ts_stripe" value="stripe"><label for="ts_stripe"><span class="cb"></span>Stripe</label></div>
+    <div class="option-item"><input type="checkbox" name="tools_stack" id="ts_fintoc" value="fintoc"><label for="ts_fintoc"><span class="cb"></span>Fintoc</label></div>
+    <div class="option-item"><input type="checkbox" name="tools_stack" id="ts_reveniu" value="reveniu"><label for="ts_reveniu"><span class="cb"></span>Reveniu</label></div>
+    <div class="option-item"><input type="checkbox" name="tools_stack" id="ts_toku" value="toku"><label for="ts_toku"><span class="cb"></span>Toku</label></div>
+    <div class="option-item"><input type="checkbox" name="tools_stack" id="ts_khipu" value="khipu"><label for="ts_khipu"><span class="cb"></span>Khipu</label></div>
+  </div>
+  <div style="font-size:0.85rem;font-weight:600;color:var(--text-sec);margin:14px 0 6px;">CRM</div>
+  <div class="option-grid" style="margin-bottom:4px;">
+    <div class="option-item"><input type="checkbox" name="tools_stack" id="ts_hubspot" value="hubspot"><label for="ts_hubspot"><span class="cb"></span>HubSpot</label></div>
+  </div>
+  <div style="font-size:0.85rem;font-weight:600;color:var(--text-sec);margin:14px 0 6px;">Product Analytics</div>
+  <div class="option-grid" style="margin-bottom:4px;">
+    <div class="option-item"><input type="checkbox" name="tools_stack" id="ts_mixpanel" value="mixpanel"><label for="ts_mixpanel"><span class="cb"></span>Mixpanel</label></div>
+    <div class="option-item"><input type="checkbox" name="tools_stack" id="ts_amplitude" value="amplitude"><label for="ts_amplitude"><span class="cb"></span>Amplitude</label></div>
+    <div class="option-item"><input type="checkbox" name="tools_stack" id="ts_snowplow" value="snowplow"><label for="ts_snowplow"><span class="cb"></span>Snowplow</label></div>
+    <div class="option-item"><input type="checkbox" name="tools_stack" id="ts_segment" value="segment"><label for="ts_segment"><span class="cb"></span>Twilio Segment</label></div>
+  </div>
+  <div style="font-size:0.85rem;font-weight:600;color:var(--text-sec);margin:14px 0 6px;">Other / None</div>
+  <div class="option-grid" style="margin-bottom:4px;">
+    <div class="option-item"><input type="checkbox" name="tools_stack" id="ts_other" value="other"><label for="ts_other"><span class="cb"></span>Other</label></div>
+    <div class="option-item"><input type="checkbox" name="tools_stack" id="ts_none" value="none"><label for="ts_none"><span class="cb"></span>None of the above</label></div>
+  </div>
+</div>
 <div class="question-group required">
   <label>If you could wave a magic wand, what is the single most valuable outcome a churn prediction tool could deliver?</label>
   <div class="option-grid single">
